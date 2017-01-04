@@ -25,7 +25,7 @@
             extraPlugins : 'onchange,highlightText,bibiscospell,dialogsymbols', 
             </c:if>
             <c:if test="${OS == 'mac'}">
-            extraPlugins : 'onchange,highlightText,bibiscospell,dialogsymbols,bibiscoClipboard',
+            extraPlugins : 'onchange,highlightText,dialogsymbols,bibiscoClipboard',
             </c:if>
             keystrokes : [
                 [ CKEDITOR.CTRL + 90 /*Z*/, 'undo' ],
@@ -73,17 +73,19 @@
             
             $(element).bind('setData.ckeditor', function() {
                 bibiscoRichTextEditor.document.on('keyup', function(event) {
-                    var keyCode = event.data.$.keyCode;
-                    if (keyCode == '13' || keyCode == '32') {
-                        bibiscoRichTextEditorSpellCheck(bibiscoRichTextEditor);
-                    }
+            		<c:if test="${OS == 'win' || OS == 'linux32' || OS == 'linux64'}">
+                    	var keyCode = event.data.$.keyCode;
+	                    if (keyCode == '13' || keyCode == '32') {
+	                        bibiscoRichTextEditorSpellCheck(bibiscoRichTextEditor);
+	                    }
+	                </c:if>           
                     bibiscoCharacterWordCount(bibiscoRichTextEditor.getText());
                 });
                 
                 bibiscoRichTextEditor.document.on('keydown', function(e) {
-                   
                 });
             });
+            
         });
         
         // initialize change status variables
@@ -255,7 +257,9 @@
             
             // spell check after paste
             ev.editor.on('afterPaste', function(evt) {
+            	<c:if test="${OS == 'win' || OS == 'linux32' || OS == 'linux64'}">
                 bibiscoRichTextEditorSpellCheck(evt.editor, false);
+                </c:if>
             });    
             
             // character word count after every command exec
@@ -388,9 +392,11 @@
     
 	function bibiscoRichTextEditorSave(humanSave, saveConfig) {
     	
+		<c:if test="${OS == 'win' || OS == 'linux32' || OS == 'linux64'}">
     	if (humanSave) {
 			bibiscoRichTextEditorSpellCheck(bibiscoRichTextEditor, true);
     	}
+    	</c:if>
     	
     	var data;
     	if (saveConfig.extraData) {
@@ -441,14 +447,14 @@
         var baseURL = '${baseURL}';
         var baseCssURL = baseURL + '/css/bibiscoRichTextEditorContents.css';
         var spellErrorCssURL = baseURL + "/css/bibiscoSpellError.css";
+        var contentsCss;
         
         if(spellCheckEnabled) {
             spellErrorCssURL = baseURL + '/css/bibiscoSpellError.css';
+            contentsCss = [baseCssURL, spellErrorCssURL];
         } else {
-            spellErrorCssURL = '#';
+        	contentsCss = [baseCssURL];
         }
-        
-        var contentsCss = [baseCssURL, spellErrorCssURL];
         
         return contentsCss;
     }
